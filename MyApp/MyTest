@@ -1,0 +1,18 @@
+import matplotlib.pyplot as plt
+
+# Data for the pie chart
+labels = ['Apple', 'Banana', 'Orange', 'Grape']
+sizes = [30, 25, 20, 25]
+colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99']
+
+# Create pie chart
+plt.figure(figsize=(8, 10))
+plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+plt.title('Fruit Distribution')
+plt.axis('equal')
+plt.tight_layout()
+
+# Save and show
+plt.savefig('pie_chart.png')
+plt.show()
+print("Pie chart saved as 'pie_chart.png'")
