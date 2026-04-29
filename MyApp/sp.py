@@ -3,8 +3,8 @@ import random
 import requests
 
 # Spotify API credentials (replace with your own)
-CLIENT_ID = "YOUR_SPOTIFY_CLIENT_ID"
-CLIENT_SECRET = "YOUR_SPOTIFY_CLIENT_SECRET"
+CLIENT_ID = "f1cbb1589acb44bab1cf71ed905c54c1"
+CLIENT_SECRET = "3d937c58d30e4795bd13b0e54289b1d9"
 
 def get_spotify_token():
     """Get Spotify access token"""
@@ -25,17 +25,14 @@ st.title("🎧 Mood-Based Song Recommender")
 
 st.write("Pick your current mood and get a song recommendation.")
 
-# Add credentials input in sidebar
+# Sidebar with app info
 with st.sidebar:
-    st.header("🔐 Spotify API")
-    st.info("""
-    To enable playback:
-    1. Go to [developer.spotify.com](https://developer.spotify.com/dashboard)
-    2. Create an app and get credentials
-    3. Enter them below
+    st.header("🎧 About")
+    st.write("""
+    This app uses the Spotify API to search 
+    and play songs based on your mood.
     """)
-    client_id_input = st.text_input("Client ID", type="password", placeholder="Enter your Client ID")
-    client_secret_input = st.text_input("Client Secret", type="password", placeholder="Enter your Client Secret")
+    st.markdown("[🎵 View on GitHub](https://github.com/worldcrtl/song-mood)")
 
 # Mood options
 mood = st.selectbox(
@@ -76,16 +73,17 @@ if st.button("Recommend a Song"):
     song, artist = random.choice(songs[mood])
     st.success(f"🎵 Your song: **{song}** by {artist}")
     
-    # Try to get Spotify preview if credentials provided
-    if client_id_input and client_secret_input:
+    # Try to get Spotify player if credentials provided
+    if CLIENT_ID and CLIENT_SECRET:
         try:
-            # Use user credentials
+            # Get access token
             auth_url = "https://accounts.spotify.com/api/token"
             auth_data = {"grant_type": "client_credentials"}
-            auth_response = requests.post(auth_url, data=auth_data, auth=(client_id_input, client_secret_input))
+            auth_response = requests.post(auth_url, data=auth_data, auth=(CLIENT_ID, CLIENT_SECRET))
             token = auth_response.json().get("access_token")
             
             if token:
+                # Search for the track
                 search_url = "https://api.spotify.com/v1/search"
                 headers = {"Authorization": f"Bearer {token}"}
                 params = {"q": f"{song} {artist}", "type": "track", "limit": 1}
@@ -94,15 +92,44 @@ if st.button("Recommend a Song"):
                 
                 if results.get("tracks", {}).get("items"):
                     track = results["tracks"]["items"][0]
-                    preview_url = track.get("preview_url")
+                    track_id = track["id"]
+                    track_name = track["name"]
+                    artist_name = track["artists"][0]["name"]
+                    album_art = track["album"]["images"][0]["url"] if track["album"]["images"] else ""
+                    spotify_url = track["external_urls"].get("spotify", "")
                     
-                    if preview_url:
-                        st.audio(preview_url, format="audio/mp3")
-                    else:
-                        st.markdown(f"[🎵 Open in Spotify]({track['external_urls']['spotify']})")
+                    # Display track info
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        if album_art:
+                            st.image(album_art, width=150)
+                    with col2:
+                        st.write(f"**{track_name}**")
+                        st.write(f"*{artist_name}*")
+                    
+                    # Embed Spotify player
+                    st.markdown(f"""
+                    <iframe style="border-radius:12px" 
+                    src="https://open.spotify.com/embed/track/{track_id}?utm_source=generator&theme=0" 
+                    width="100%" height="152" frameBorder="0" allowfullscreen="" 
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                    loading="lazy"></iframe>
+                    """, unsafe_allow_html=True)
+                    
+                    # Also show Spotify link
+                    st.markdown(f"[🔗 Open in Spotify]({spotify_url})")
                 else:
-                    st.info("Song not found on Spotify")
+                    st.info("Song not found on Spotify. Try another mood!")
         except Exception as e:
-            st.warning("Could not connect to Spotify. Check your credentials!")
+            st.error(f"Could not connect to Spotify: {str(e)}")
+            st.info("Make sure your Spotify credentials are correct.")
+    else:
+        st.warning("⚠️ Spotify credentials not configured.")
+        st.info("""
+        To enable the player:
+        1. Go to [developer.spotify.com](https://developer.spotify.com/dashboard)
+        2. Create an app and get Client ID & Secret
+        3. Update the credentials in the code
+        """)
     
     st.write("🎧 Sit back, press play, and enjoy the vibe ✨")
