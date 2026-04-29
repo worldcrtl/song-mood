@@ -36,7 +36,8 @@ songs = {
     "Happy": [
         ("Happy", "Pharrell Williams"),
         ("Can't Stop the Feeling", "Justin Timberlake"),
-        ("Good as Hell", "Lizzo")
+        ("Good as Hell", "Lizzo"),
+        ("APT", "Bruno Mars")
     ],
     "Sad": [
         ("Someone Like You", "Adele"),
