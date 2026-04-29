@@ -25,15 +25,6 @@ st.title("🎧 Mood-Based Song Recommender")
 
 st.write("Pick your current mood and get a song recommendation.")
 
-# Sidebar with app info
-with st.sidebar:
-    st.header("🎧 About")
-    st.write("""
-    This app uses the Spotify API to search 
-    and play songs based on your mood.
-    """)
-    st.markdown("[🎵 View on GitHub](https://github.com/worldcrtl/song-mood)")
-
 # Mood options
 mood = st.selectbox(
     "How are you feeling?",
